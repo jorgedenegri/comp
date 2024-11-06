@@ -1,0 +1,761 @@
+Lotto
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Función recursiva que genera todas las combinaciones de 6 números y las imprime
+void generarCombinaciones(const vector<int>& S, vector<int>& combinacion, int inicio, int profundidad) {
+    // Caso base: si hemos seleccionado 6 números, imprimimos la combinación
+    if (profundidad == 6) {
+        for (int i = 0; i < 6; i++) {
+            if (i > 0) cout << " ";
+            cout << combinacion[i];
+        }
+        cout << endl;
+        return;
+    }
+    
+    // Generar combinaciones desde el índice de inicio hasta el final del conjunto
+    for (int i = inicio; i < S.size(); i++) {
+        combinacion[profundidad] = S[i];  // Seleccionamos el número actual
+        generarCombinaciones(S, combinacion, i + 1, profundidad + 1);  // Llamada recursiva
+    }
+}
+
+int main() {
+    int k;  // Número de elementos en el conjunto S
+    
+    // Leemos cada caso de prueba hasta que se ingrese un '0' para k
+    bool primeraSalida = true;
+    while (cin >> k, k != 0) {
+        if (!primeraSalida) cout << endl;  // Imprimir una línea en blanco entre casos de prueba
+        primeraSalida = false;
+        
+        vector<int> S(k);  // Conjunto de números de entrada
+        for (int i = 0; i < k; i++) {
+            cin >> S[i];  // Leer los números del conjunto S
+        }
+
+        vector<int> combinacion(6);  // Vector temporal para almacenar cada combinación
+        generarCombinaciones(S, combinacion, 0, 0);  // Llamada a la función recursiva
+    }
+    
+    return 0;
+}
+
+MOVIE POLICE
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <limits>
+
+using namespace std;
+
+// Función que calcula la distancia de Hamming entre dos cadenas de la misma longitud
+int calcularHamming(const string& a, const string& b) {
+    int distancia = 0;
+    for (int i = 0; i < a.size(); i++) {
+        if (a[i] != b[i]) {
+            distancia++;
+        }
+    }
+    return distancia;
+}
+
+int main() {
+    int M, Q;  // M: número de firmas de películas, Q: número de firmas de clips
+    cin >> M >> Q;
+
+    vector<string> peliculas(M);  // Vector para almacenar las firmas de las películas
+    for (int i = 0; i < M; i++) {
+        cin >> peliculas[i];  // Leer cada firma de película
+    }
+
+    // Procesar cada firma de clip
+    for (int q = 0; q < Q; q++) {
+        string clip;
+        cin >> clip;  // Leer la firma del clip
+
+        int mejorIndice = -1;
+        int menorDistancia = numeric_limits<int>::max();
+
+        // Comparar el clip con cada firma de película
+        for (int i = 0; i < M; i++) {
+            const string& pelicula = peliculas[i];
+
+            // Evaluar cada substring de la firma de la película que tenga la longitud del clip
+            for (int j = 0; j <= pelicula.size() - clip.size(); j++) {
+                string subPelicula = pelicula.substr(j, clip.size());
+                int distancia = calcularHamming(subPelicula, clip);
+
+                // Actualizar si encontramos una distancia menor
+                if (distancia < menorDistancia) {
+                    menorDistancia = distancia;
+                    mejorIndice = i + 1;  // Guardar el índice (1-based)
+                }
+            }
+        }
+
+        // Imprimir el índice de la película con la menor distancia de Hamming
+        cout << mejorIndice << endl;
+    }
+
+    return 0;
+}
+
+D - Outwitting the Weighing Machine
+Para resolver este problema, necesitamos encontrar todas las soluciones enteras de la ecuación 
+𝑎
+3
+=
+𝑏
+3
++
+𝑐
+3
++
+𝑑
+3
+a 
+3
+ =b 
+3
+ +c 
+3
+ +d 
+3
+ , donde 
+𝑎
+,
+𝑏
+,
+𝑐
+,
+a,b,c, y 
+𝑑
+d son enteros mayores que 1 y 
+𝑎
+≤
+200
+a≤200. El objetivo es enumerar todas las soluciones posibles, ordenadas primero por 
+𝑎
+a y, en caso de que haya varias soluciones para un mismo 
+𝑎
+a, ordenarlas por 
+𝑏
+b.
+
+Observaciones clave:
+Limitaciones en el cálculo: Como 
+𝑎
+≤
+200
+a≤200, debemos calcular 
+𝑎
+3
+a 
+3
+  hasta 200, lo cual es manejable en términos de cómputo.
+
+Orden de los números: La salida debe estar en un orden específico:
+
+Ordenada en orden ascendente por 
+𝑎
+a.
+Para cada valor de 
+𝑎
+a, las posibles soluciones 
+(
+𝑏
+,
+𝑐
+,
+𝑑
+)
+(b,c,d) deben estar en orden ascendente y deben aparecer primero los valores de 
+𝑏
+b más pequeños.
+Reducción del problema: En lugar de verificar todos los posibles valores de 
+𝑎
+,
+𝑏
+,
+𝑐
+,
+a,b,c, y 
+𝑑
+d, podemos usar el hecho de que:
+
+𝑏
+≤
+𝑐
+≤
+𝑑
+b≤c≤d
+Esto reduce significativamente el número de combinaciones a probar.
+
+Uso de precomputación: Dado que 
+𝑎
+3
+=
+𝑏
+3
++
+𝑐
+3
++
+𝑑
+3
+a 
+3
+ =b 
+3
+ +c 
+3
+ +d 
+3
+ , podemos calcular todos los valores posibles de 
+𝑏
+3
++
+𝑐
+3
++
+𝑑
+3
+b 
+3
+ +c 
+3
+ +d 
+3
+  y luego verificar si existen valores de 
+𝑎
+a tales que 
+𝑎
+3
+a 
+3
+  coincida con esta suma.
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    // Definimos el límite superior para a, b, c y d
+    const int LIMITE = 200;
+    
+    // Vector para almacenar las soluciones encontradas
+    vector<tuple<int, int, int, int>> resultados;
+
+    // Recorrer valores de a desde 2 hasta el límite
+    for (int a = 2; a <= LIMITE; ++a) {
+        int a3 = a * a * a;
+
+        // Recorrer b desde 2 hasta a para cumplir con el orden de las triples
+        for (int b = 2; b < a; ++b) {
+            int b3 = b * b * b;
+
+            // Recorrer c desde b hasta a
+            for (int c = b; c < a; ++c) {
+                int c3 = c * c * c;
+
+                // Recorrer d desde c hasta a
+                for (int d = c; d < a; ++d) {
+                    int d3 = d * d * d;
+
+                    // Comprobar si se cumple la ecuación a^3 = b^3 + c^3 + d^3
+                    if (a3 == b3 + c3 + d3) {
+                        // Almacenar la solución encontrada
+                        resultados.emplace_back(a, b, c, d);
+                    }
+                }
+            }
+        }
+    }
+
+    // Imprimir los resultados en el formato requerido
+    for (const auto& resultado : resultados) {
+        int a, b, c, d;
+        tie(a, b, c, d) = resultado;
+        cout << "Cube = " << a << ", Triple = (" << b << "," << c << "," << d << ")" << endl;
+    }
+
+    return 0;
+}
+A - Graph Connectivity 
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+
+using namespace std;
+
+// Función para realizar DFS y marcar los nodos visitados
+void dfs(char nodo, unordered_map<char, vector<char>>& grafo, unordered_set<char>& visitados) {
+    visitados.insert(nodo);
+    for (char vecino : grafo[nodo]) {
+        if (visitados.find(vecino) == visitados.end()) {
+            dfs(vecino, grafo, visitados);
+        }
+    }
+}
+
+int main() {
+    int casos;
+    cin >> casos;
+    cin.ignore(); // Ignorar la línea en blanco después del número de casos
+    cin.ignore();
+
+    for (int c = 0; c < casos; ++c) {
+        if (c > 0) cout << endl; // Imprimir línea en blanco entre casos
+
+        char mayorNodo;
+        cin >> mayorNodo;
+        cin.ignore();
+
+        unordered_map<char, vector<char>> grafo;
+        unordered_set<char> nodos; // Conjunto de nodos presentes en el grafo
+
+        string linea;
+        while (getline(cin, linea) && !linea.empty()) {
+            char nodo1 = linea[0];
+            char nodo2 = linea[1];
+
+            grafo[nodo1].push_back(nodo2);
+            grafo[nodo2].push_back(nodo1);
+
+            nodos.insert(nodo1);
+            nodos.insert(nodo2);
+        }
+
+        // Añadir todos los nodos hasta el mayor nodo, aunque no tengan conexiones
+        for (char nodo = 'A'; nodo <= mayorNodo; ++nodo) {
+            if (nodos.find(nodo) == nodos.end()) {
+                nodos.insert(nodo);
+                grafo[nodo] = vector<char>(); // Nodo aislado sin conexiones
+            }
+        }
+
+        // Contar el número de componentes conexas
+        unordered_set<char> visitados;
+        int componentesConexas = 0;
+
+        for (char nodo : nodos) {
+            if (visitados.find(nodo) == visitados.end()) {
+                dfs(nodo, grafo, visitados);
+                componentesConexas++;
+            }
+        }
+
+        cout << componentesConexas << endl;
+    }
+
+    return 0;
+}
+
+BICOLORING
+#include <iostream>
+#include <vector>
+#include <queue>
+
+using namespace std;
+
+// Función para verificar si un grafo es bicolor usando BFS
+bool esBicolor(const vector<vector<int>>& grafo, int n) {
+    vector<int> colores(n, -1); // -1 indica sin color asignado
+    queue<int> q;
+
+    // Iniciar BFS para cada componente conectada
+    for (int i = 0; i < n; ++i) {
+        if (colores[i] == -1) { // Si el nodo no ha sido coloreado
+            colores[i] = 0; // Asignar el primer color
+            q.push(i);
+
+            // Procesar la cola de BFS
+            while (!q.empty()) {
+                int nodo = q.front();
+                q.pop();
+
+                for (int vecino : grafo[nodo]) {
+                    if (colores[vecino] == -1) {
+                        // Color opuesto al del nodo actual
+                        colores[vecino] = 1 - colores[nodo];
+                        q.push(vecino);
+                    } else if (colores[vecino] == colores[nodo]) {
+                        // Si un vecino tiene el mismo color, no es bicolor
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+int main() {
+    int n;
+    while (cin >> n, n != 0) {
+        int l;
+        cin >> l;
+
+        vector<vector<int>> grafo(n);
+
+        // Leer las aristas y construir el grafo
+        for (int i = 0; i < l; ++i) {
+            int a, b;
+            cin >> a >> b;
+            grafo[a].push_back(b);
+            grafo[b].push_back(a);
+        }
+
+        // Verificar si el grafo es bicolor
+        if (esBicolor(grafo, n)) {
+            cout << "BICOLORABLE." << endl;
+        } else {
+            cout << "NOT BICOLORABLE." << endl;
+        }
+    }
+
+    return 0;
+}
+
+ROBOT MOTION#include <iostream>
+#include <vector>
+#include <stack>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+vector<int> adj[10000];      // Grafo original
+vector<int> rev_adj[10000];  // Grafo con las aristas invertidas
+vector<int> scc[10000];      // Componentes fuertemente conexos
+int n, m;                    // Número de nodos y aristas
+int component[10000];        // Almacena el componente de cada nodo
+bool visited[10000];         // Para el DFS
+stack<int> dfs_stack;        // Para el orden de salida en el DFS
+bool is_cactus = true;       // Flag para verificar si es cactus
+
+// DFS normal para Kosaraju
+void dfs1(int v) {
+    visited[v] = true;
+    for (int u : adj[v]) {
+        if (!visited[u]) {
+            dfs1(u);
+        }
+    }
+    dfs_stack.push(v);  // Registrar el nodo cuando terminamos con él
+}
+
+// DFS sobre el grafo transpuesto
+void dfs2(int v, int comp_id) {
+    component[v] = comp_id;
+    scc[comp_id].push_back(v);
+    for (int u : rev_adj[v]) {
+        if (component[u] == -1) {
+            dfs2(u, comp_id);
+        }
+    }
+}
+
+// DFS para detectar ciclos en cada componente
+bool detect_cycle(int v, vector<int>& path) {
+    visited[v] = true;
+    path.push_back(v);
+    for (int u : adj[v]) {
+        if (find(path.begin(), path.end(), u) != path.end()) {
+            // Se encontró un ciclo, verificamos si todas las aristas del ciclo son únicas
+            return true;
+        }
+        if (!visited[u]) {
+            if (detect_cycle(u, path)) {
+                return true;
+            }
+        }
+    }
+    path.pop_back();
+    return false;
+}
+
+// Función principal
+int main() {
+    int t;
+    cin >> t;  // Número de casos de prueba
+    while (t--) {
+        cin >> n >> m;  // Leer el número de nodos y aristas
+        for (int i = 0; i < n; ++i) {
+            adj[i].clear();
+            rev_adj[i].clear();
+        }
+
+        for (int i = 0; i < m; ++i) {
+            int u, v;
+            cin >> u >> v;
+            adj[u].push_back(v);
+            rev_adj[v].push_back(u);
+        }
+
+        // 1. Verificar la conectividad fuerte
+        memset(visited, 0, sizeof(visited));
+        for (int i = 0; i < n; ++i) {
+            if (!visited[i]) {
+                dfs1(i);
+            }
+        }
+
+        memset(component, -1, sizeof(component));
+        int comp_id = 0;
+        while (!dfs_stack.empty()) {
+            int v = dfs_stack.top();
+            dfs_stack.pop();
+            if (component[v] == -1) {
+                dfs2(v, comp_id++);
+            }
+        }
+
+        // Si hay más de un componente, el grafo no es fuertemente conexo
+        if (comp_id > 1) {
+            cout << "NO" << endl;
+            continue;
+        }
+
+        // 2. Verificar que cada arista esté en exactamente un ciclo simple
+        memset(visited, 0, sizeof(visited));
+        is_cactus = true;
+
+        // Revisamos cada componente fuertemente conexo para detectar ciclos
+        for (int i = 0; i < comp_id; ++i) {
+            for (int v : scc[i]) {
+                if (!visited[v]) {
+                    vector<int> path;
+                    if (detect_cycle(v, path)) {
+                        // Si se encuentra un ciclo, comprobamos si todas las aristas están en solo un ciclo
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Imprimir el resultado
+        if (is_cactus) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
+    }
+    return 0;
+}
+ROMEO:
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cstring>
+
+using namespace std;
+
+vector<int> enemies[200];  // Lista de enemigos
+int color[200];  // Almacenará el color de cada nodo (0, 1, o -1 si no está coloreado)
+
+// Función para realizar DFS y colorear el grafo
+bool dfs(int node, int c) {
+    color[node] = c;  // Asignamos el color al nodo
+    for (int enemy : enemies[node]) {
+        if (color[enemy] == -1) {  // Si el enemigo no está coloreado, lo coloreamos con el color contrario
+            if (!dfs(enemy, 1 - c)) return false;
+        } else if (color[enemy] == c) {  // Si el enemigo tiene el mismo color, no es bipartible
+            return false;
+        }
+    }
+    return true;
+}
+
+int main() {
+    int t;
+    cin >> t;  // Número de casos de prueba
+
+    while (t--) {
+        // Limpiar las estructuras para el siguiente caso de prueba
+        for (int i = 0; i < 200; ++i) {
+            enemies[i].clear();
+            color[i] = -1;  // -1 significa que el nodo no está coloreado
+        }
+
+        int N;
+        cin >> N;  // Número de personas
+        for (int i = 0; i < N; ++i) {
+            int p;
+            cin >> p;  // Número de enemigos de la persona i+1
+            for (int j = 0; j < p; ++j) {
+                int enemy;
+                cin >> enemy;
+                enemies[i].push_back(enemy - 1);  // Guardamos la lista de enemigos (0-indexed)
+            }
+        }
+
+        bool possible = true;
+        int maxInviteCount = 0;
+
+        // Verificar todas las componentes conexas
+        for (int i = 0; i < N; ++i) {
+            if (color[i] == -1) {  // Si no hemos coloreado este nodo
+                int count[2] = {0, 0};  // Contadores para los colores 0 y 1
+                if (!dfs(i, 0)) {  // Si no podemos colorear el grafo de forma válida
+                    possible = false;
+                    break;
+                }
+
+                // Contamos cuántos nodos hay en cada color
+                for (int j = 0; j < N; ++j) {
+                    if (color[j] == 0) count[0]++;
+                    else if (color[j] == 1) count[1]++;
+                }
+
+                // Elegimos el máximo número de nodos que podemos invitar
+                maxInviteCount += max(count[0], count[1]);
+            }
+        }
+
+        if (possible) {
+            cout << maxInviteCount << endl;
+        } else {
+            cout << "0" << endl;
+        }
+
+        if (t) cout << endl;  // Espacio entre los resultados de los casos de prueba
+    }
+
+    return 0;
+}
+CACTUS
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <cstring>
+#include <algorithm>
+
+using namespace std;
+
+vector<int> adj[10000];      // Grafo original
+vector<int> rev_adj[10000];  // Grafo con las aristas invertidas
+vector<int> scc[10000];      // Componentes fuertemente conexos
+int n, m;                    // Número de nodos y aristas
+int component[10000];        // Almacena el componente de cada nodo
+bool visited[10000];         // Para el DFS
+stack<int> dfs_stack;        // Para el orden de salida en el DFS
+bool is_cactus = true;       // Flag para verificar si es cactus
+
+// DFS normal para Kosaraju
+void dfs1(int v) {
+    visited[v] = true;
+    for (int u : adj[v]) {
+        if (!visited[u]) {
+            dfs1(u);
+        }
+    }
+    dfs_stack.push(v);  // Registrar el nodo cuando terminamos con él
+}
+
+// DFS sobre el grafo transpuesto
+void dfs2(int v, int comp_id) {
+    component[v] = comp_id;
+    scc[comp_id].push_back(v);
+    for (int u : rev_adj[v]) {
+        if (component[u] == -1) {
+            dfs2(u, comp_id);
+        }
+    }
+}
+
+// DFS para detectar ciclos en cada componente
+bool detect_cycle(int v, vector<int>& path) {
+    visited[v] = true;
+    path.push_back(v);
+    for (int u : adj[v]) {
+        if (find(path.begin(), path.end(), u) != path.end()) {
+            // Se encontró un ciclo, verificamos si todas las aristas del ciclo son únicas
+            return true;
+        }
+        if (!visited[u]) {
+            if (detect_cycle(u, path)) {
+                return true;
+            }
+        }
+    }
+    path.pop_back();
+    return false;
+}
+
+// Función principal
+int main() {
+    int t;
+    cin >> t;  // Número de casos de prueba
+    while (t--) {
+        cin >> n >> m;  // Leer el número de nodos y aristas
+        for (int i = 0; i < n; ++i) {
+            adj[i].clear();
+            rev_adj[i].clear();
+        }
+
+        for (int i = 0; i < m; ++i) {
+            int u, v;
+            cin >> u >> v;
+            adj[u].push_back(v);
+            rev_adj[v].push_back(u);
+        }
+
+        // 1. Verificar la conectividad fuerte
+        memset(visited, 0, sizeof(visited));
+        for (int i = 0; i < n; ++i) {
+            if (!visited[i]) {
+                dfs1(i);
+            }
+        }
+
+        memset(component, -1, sizeof(component));
+        int comp_id = 0;
+        while (!dfs_stack.empty()) {
+            int v = dfs_stack.top();
+            dfs_stack.pop();
+            if (component[v] == -1) {
+                dfs2(v, comp_id++);
+            }
+        }
+
+        // Si hay más de un componente, el grafo no es fuertemente conexo
+        if (comp_id > 1) {
+            cout << "NO" << endl;
+            continue;
+        }
+
+        // 2. Verificar que cada arista esté en exactamente un ciclo simple
+        memset(visited, 0, sizeof(visited));
+        is_cactus = true;
+
+        // Revisamos cada componente fuertemente conexo para detectar ciclos
+        for (int i = 0; i < comp_id; ++i) {
+            for (int v : scc[i]) {
+                if (!visited[v]) {
+                    vector<int> path;
+                    if (detect_cycle(v, path)) {
+                        // Si se encuentra un ciclo, comprobamos si todas las aristas están en solo un ciclo
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Imprimir el resultado
+        if (is_cactus) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
+    }
+    return 0;
+}
